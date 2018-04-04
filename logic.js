@@ -114,7 +114,6 @@ function spotifyRun(){
     });
 }
 
-
 // Twitter Function
 function twitterRun(){
     twitterKey.get('statuses/user_timeline', twitterName, function(error, tweets, response) {
@@ -164,7 +163,7 @@ function hardacRun(){
                 input = newArray[luckSpot].split(",").slice(-1);
                     console.log("Random Input: " + input); 
                 
-
+                // Selects The Right Function To Run Based On Pick
                 if(command=='"spotify-this-song"'){
                     console.log("Song Picked");
                     spotifyRun();
@@ -178,20 +177,6 @@ function hardacRun(){
         }
     });
 }
-
-
-// read random file
-// put lines into array separatd by |
-// pick three random positions in array
-// run functions
-
-
-
-
-
-
-
-
 
 // Write To Log.txt
 function appendLog(){
