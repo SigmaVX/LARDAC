@@ -5,6 +5,15 @@ var keys = require("./keys.js");
 var twitter = require('twitter');
 var spotify = require('node-spotify-api');
 var request = require("request");
+var fs = require("fs");
+
+// Luck Vars
+var match = false;
+var luck;
+var newLuck;
+var luckArray = [];
+var luckSpot = 0;
+var loopCount = 0;
 
 var omdbKey = keys.omdb.api_key;
 
@@ -21,39 +30,50 @@ var spotifyKey = new spotify({
     secret: process.env.SPOTIFY_SECRET
   }); 
  
-  
 // Capture User Input  
 var command = process.argv[2];
 var input = process.argv.slice(3).join(" ");
 
 // Build Switch Case
-
 switch(command) {
     case "my-tweets":
         twitterRun();
+        appendLog();
         break;
     case "spotify-this-song":
         spotifyRun();
+        appendLog();
         break;
     case "movie-this":
         omdbRun();
+        appendLog();
+        break;
+    case "do-what-it-says":
+        hardacRun();
+        appendLog();
         break;
     default:
         console.log("HARDAC Did Not Recognize That Command. Please Check Your Syntax.");
         console.log("Valid Inputs: 'node logic.js my-tweets' | 'node logic.js spotify-this-song <song name>'");
         console.log("'node logic.js movie-this <movie name>' | 'node logic.js do-what-it-says'");
+        appendLog();
 }
 
-
-
-
+// OMDB Function
 function omdbRun(){
+    // Check for user input
+    if(input===""){
+        input = "Mr. Nobody";
+        console.log("No Song Selected");
+    } 
+
     // Create API URL
     var queryUrl = "http://www.omdbapi.com/?t=" + input + "&y=&plot=short" + omdbKey;
     // Run Request
     request(queryUrl, function(error, response, data){
         // Log Paths
         if (!error && response.statusCode===200){
+            // console.log(JSON.parse("All Data: " + data));
             console.log("++++++++++++++++++++++++++++++++++++++++++++++");
             console.log("Movie Title: " + JSON.parse(data).Title);
             console.log("Release Year: " + JSON.parse(data).Year);
@@ -83,7 +103,7 @@ function spotifyRun(){
         if (err) {
             return console.log(err);
         }else{
-            console.log(data.tracks.items[0]); 
+            // console.log(data.tracks.items[0]); 
             console.log("++++++++++++++++++++++++++++++++++++++++++++++");
             console.log("Track: " + data.tracks.items[0].name);
             console.log("Artist: " + data.tracks.items[0].artists[0].name);
@@ -115,8 +135,109 @@ function twitterRun(){
     }); 
 }
 
+// Pick Random Music Or Movie Reocomendation
+function hardacRun(){
+    luckArray = [];
+
+    // Fill Random Luck Array
+    randomPick();
+    randomPick();
+    randomPick();
+
+    // Runs FS To Read The Text File
+    fs.readFile("random.txt", "utf8", function(error, data){
+        if(error){
+            return console.log(error);
+        }else{
+            // Convert Random Text File To An Array 
+            var newArray = data.slice(0).split("|");
+                console.log(newArray);
+
+            for(var i = 0; i < luckArray.length; i++){
+                // Sets New Input & Command From Random Pick Of Array
+                console.log("loop");
+                luckSpot = luckArray[i];
+
+                command = newArray[luckSpot].split(",").slice(0,1);
+                    console.log("Random Command: " + command);
+                
+                input = newArray[luckSpot].split(",").slice(-1);
+                    console.log("Random Input: " + input); 
+                
+
+                if(command=='"spotify-this-song"'){
+                    console.log("Song Picked");
+                    spotifyRun();
+                } else if(command=='"movie-this"') {
+                    console.log("Movie Picked")
+                    omdbRun();
+                } else {
+                    console.log("Something Went Wrong!")
+                }
+            }
+        }
+    });
+}
 
 
-// var spotify = new Spotify({
-//     id: process.env.TwitterKey
-// })
+// read random file
+// put lines into array separatd by |
+// pick three random positions in array
+// run functions
+
+
+
+
+
+
+
+
+
+// Write To Log.txt
+function appendLog(){
+    fs.appendFile("log.txt", command + " " + input + ",", function(error){
+        if(error) {
+            return console.log(error);
+        } else {
+            console.log("Request Logged :)");
+        }
+    });
+}
+
+// Picks Random Number But Checks Same Number Is Not Picked Twice In A Row
+function randomPick(){
+    // Picks Number between 0 (inclusive) and 9 (inclusive) 
+    newLuck = Math.floor((Math.random() * 10));
+        console.log("New Luck Is: " + newLuck);
+        console.log("Luck Array Is: " + luckArray);
+        console.log("Check: " + luckArray.indexOf(newLuck));
+    
+        // Checks If Number Is In Luck Array - True If > -1
+    if (luckArray.indexOf(newLuck) > -1){
+        match = true;
+        while (match === true){
+            console.log("++++++++++++++++ running loop +++++++++++++++++");
+            loopCount++;
+            newLuck = Math.floor((Math.random() * 10) + 1);
+            // Checks If In Luck Array - False If = -1
+            if(luckArray.indexOf(newLuck) === -1){
+                // changes condition
+                match = false;
+                // sets luck to new number
+                luck = newLuck;
+                // adds new luck to array
+                luckArray.push(luck);
+                console.log("Loop Picked New Number: " + luck);
+                console.log("Luck Array Modified: " + luckArray);
+            // Do Nothing If Random Picks Same - Start Loop Again 
+            } else {
+                console.log("No Luck");
+            }
+        }
+    } else {
+        luck = newLuck;
+        luckArray.push(luck);
+        console.log("Added Luck To Array: " + luckArray);
+    }
+}
+
