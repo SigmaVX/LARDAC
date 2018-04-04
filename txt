@@ -1,0 +1,12 @@
+.ds_Store
+node_modules/
+.vscode
+.env
+
+add these to the git ignore file.  this will make sure they are not included.
+
+TwitterKey="value"
+name want to access it by = value
+
+
+
