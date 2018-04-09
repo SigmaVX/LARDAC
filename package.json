@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/SigmaVX/HARDAC#readme",
   "dependencies": {
+    "bluebird": "^3.5.1",
     "dotenv": "^5.0.1",
     "inquirer": "^5.2.0",
     "node-spotify-api": "^1.0.7",

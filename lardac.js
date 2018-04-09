@@ -1,9 +1,11 @@
 
 require('dotenv').config();
 
+var Promise = require("bluebird");
 var keys = require("./keys.js");
 var twitter = require('twitter');
 var spotify = require('node-spotify-api');
+// var spotify = Promise.promisifyAll(require('node-spotify-api'));
 var request = require("request");
 var fs = require("fs");
 
@@ -49,13 +51,13 @@ switch(command) {
         appendLog();
         break;
     case "do-what-it-says":
-        hardacRun();
+        lardacRun();
         appendLog();
         break;
     default:
-        console.log("HARDAC Did Not Recognize That Command. Please Check Your Syntax.");
-        console.log("Valid Inputs: 'node logic.js my-tweets' | 'node logic.js spotify-this-song <song name>'");
-        console.log("'node logic.js movie-this <movie name>' | 'node logic.js do-what-it-says'");
+        console.log("LARDAC Did Not Recognize That Command. Please Check Your Syntax.");
+        console.log("Valid Inputs: 'node lardac.js my-tweets' | 'node lardac.js spotify-this-song <song name>'");
+        console.log("'node lardac.js movie-this <movie name>' | 'node lardac.js do-what-it-says'");
         appendLog();
 }
 
@@ -92,6 +94,7 @@ function omdbRun(){
 
 // Spotify Function
 function spotifyRun(){
+    
     // Check for user input
     if(input===""){
         input = "The Sign Ace of Base";
@@ -100,6 +103,7 @@ function spotifyRun(){
 
     // Search for track using Spotify API
     spotifyKey.search({ type: 'track', query: input }, function(err, data) {
+    // spotifyKey.search({ type: 'track', query: input }).then(function(err, data) {
         if (err) {
             return console.log(err);
         }else{
@@ -134,11 +138,13 @@ function twitterRun(){
     }); 
 }
 
-// Pick Random Music Or Movie Reocomendation
-function hardacRun(){
+// // Pick Random Music Or Movie Reocomendation
+function lardacRun(){
+    
     luckArray = [];
 
     // Fill Random Luck Array
+    randomPick();
     randomPick();
     randomPick();
     randomPick();
@@ -150,18 +156,18 @@ function hardacRun(){
         }else{
             // Convert Random Text File To An Array 
             var newArray = data.slice(0).split("|");
-                console.log(newArray);
+                // console.log(newArray);
 
             for(var i = 0; i < luckArray.length; i++){
                 // Sets New Input & Command From Random Pick Of Array
-                console.log("loop");
+                // console.log("loop");
                 luckSpot = luckArray[i];
 
                 command = newArray[luckSpot].split(",").slice(0,1);
-                    console.log("Random Command: " + command);
+                    // console.log("Random Command: " + command);
                 
                 input = newArray[luckSpot].split(",").slice(-1);
-                    console.log("Random Input: " + input); 
+                    // console.log("Random Input: " + input); 
                 
                 // Selects The Right Function To Run Based On Pick
                 if(command=='"spotify-this-song"'){
@@ -189,20 +195,19 @@ function appendLog(){
     });
 }
 
-// Picks Random Number But Checks Same Number Is Not Picked Twice In A Row
+// Picks Unique Random Number | Same Number Is Not Picked Twice In A Row
 function randomPick(){
     // Picks Number between 0 (inclusive) and 9 (inclusive) 
     newLuck = Math.floor((Math.random() * 10));
-        console.log("New Luck Is: " + newLuck);
-        console.log("Luck Array Is: " + luckArray);
-        console.log("Check: " + luckArray.indexOf(newLuck));
+        // console.log("New Luck Is: " + newLuck);
+        // console.log("Luck Array Is: " + luckArray);
+        // console.log("Check: " + luckArray.indexOf(newLuck));
     
         // Checks If Number Is In Luck Array - True If > -1
     if (luckArray.indexOf(newLuck) > -1){
         match = true;
         while (match === true){
             console.log("++++++++++++++++ running loop +++++++++++++++++");
-            loopCount++;
             newLuck = Math.floor((Math.random() * 10) + 1);
             // Checks If In Luck Array - False If = -1
             if(luckArray.indexOf(newLuck) === -1){
@@ -212,8 +217,9 @@ function randomPick(){
                 luck = newLuck;
                 // adds new luck to array
                 luckArray.push(luck);
-                console.log("Loop Picked New Number: " + luck);
-                console.log("Luck Array Modified: " + luckArray);
+                // console.log("Loop Picked New Number: " + luck);
+                // console.log("Luck Array Modified: " + luckArray);
+
             // Do Nothing If Random Picks Same - Start Loop Again 
             } else {
                 console.log("No Luck");
@@ -222,7 +228,7 @@ function randomPick(){
     } else {
         luck = newLuck;
         luckArray.push(luck);
-        console.log("Added Luck To Array: " + luckArray);
+        // console.log("Added Luck To Array: " + luckArray);
     }
 }
 
