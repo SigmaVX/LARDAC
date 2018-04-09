@@ -1,5 +1,5 @@
 # LARDAC
-Before the rise of Gotham's HARDAC there was LARDAC, which will fetch Tweets, song tracks from Spotify, and Movie Info from OMDB.  Need a little help?  LARDAC will recommend a random movie or song for you and keeps track of requests in the log file.  
+Before the rise of Gotham's HARDAC there was LARDAC, which will fetch Tweets, song tracks from Spotify, and movie info from OMDB.  Need a little help?  LARDAC will recommend a random movie or song for you and keeps track of requests in the log file.  
 
 This back-end application is built with JavaScript and Node.js NPM packages. It is designed to run from your terminal.  The application showcases the use of FS Read, FS Write, the "Request" NPM package, the OMDB API, the Spotify API, the Twitter API, and "dotenv" package to protect API keys.  It also includes a randomization function that randomly picks unique (i.e. non-duplicate) numbers using a recursive approach.   
 <h2>Commands - From Root In Terminal</h2>
