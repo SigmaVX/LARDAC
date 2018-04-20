@@ -1,11 +1,13 @@
 
 require('dotenv').config();
 
-var Promise = require("bluebird");
+
 var keys = require("./keys.js");
 var twitter = require('twitter');
 var spotify = require('node-spotify-api');
-// var spotify = Promise.promisifyAll(require('node-spotify-api'));
+const cTable = require('console.table');
+var inquirer = require("inquirer");
+
 var request = require("request");
 var fs = require("fs");
 
@@ -32,75 +34,121 @@ var spotifyKey = new spotify({
     secret: process.env.SPOTIFY_SECRET
   }); 
  
-// Capture User Input  
+// Capture User Input - Not Used For Inquirer Prompts Upgrade 
 var command = process.argv[2];
 var input = process.argv.slice(3).join(" ");
 
-// Build Switch Case
-switch(command) {
-    case "my-tweets":
-        twitterRun();
-        appendLog();
-        break;
-    case "spotify-this-song":
-        spotifyRun();
-        appendLog();
-        break;
-    case "movie-this":
-        omdbRun();
-        appendLog();
-        break;
-    case "do-what-it-says":
-        lardacRun();
-        appendLog();
-        break;
-    default:
-        console.log("LARDAC Did Not Recognize That Command. Please Check Your Syntax.");
-        console.log("Valid Inputs: 'node lardac.js my-tweets' | 'node lardac.js spotify-this-song <song name>'");
-        console.log("'node lardac.js movie-this <movie name>' | 'node lardac.js do-what-it-says'");
-        appendLog();
-}
+// -------------------------------------
+var options = ["View My Tweets","Find Movie Info On OMDB","Find Song Info On Spotify","Recommend Music & Movies\n"];
+
+console.log("\n\n\n")
+console.log("Language * Assisted * Reciprocating * Digital * Awesomeness * Computer");
+console.log("_____________________________________________________________________");
+console.log("\nWelcome To LARDAC's Music, Movie, & Tweet Portal!\n\n");
+
+
+function start(){
+    inquirer.prompt([
+            {
+              name: 'pickFunction',
+              message: '\nLARDAC Commands: ',
+              type: 'list',
+              choices: options
+            }
+        ]).then(function(answers) {
+
+        // Run Switch Case To Trigger A Function
+        switch (answers.pickFunction) {
+            case "View My Tweets":
+                twitterRun();
+                setTimeout(start, 2000);
+                break;
+            case "Find Song Info On Spotify":
+                spotifyRun();
+                break;
+            case "Find Movie Info On OMDB":
+                omdbRun();
+                break;
+            case "Recommend Music & Movies\n":
+                lardacRun();
+                break;
+            default:
+                console.log("LARDAC Did Not Recognize That Command. Please Check Your Syntax.");
+                start();
+        }
+    });
+};
 
 // OMDB Function
 function omdbRun(){
-    // Check for user input
-    if(input===""){
-        input = "Mr. Nobody";
-        console.log("No Song Selected");
-    } 
 
+    inquirer.prompt([
+        {
+          name: 'pickMovie',
+          message: 'Please Enter A Movie Title: ',
+          type: 'input',
+          default: 'Mr. Nobody'
+        }
+      ]).then(function(answers) {
+            input = answers.pickMovie;  
+            movieLogic();
+            appendLog();
+            setTimeout(start, 1000);
+            // console.log("Select Down Arrow To See LARDAC Commands");
+    });
+}
+
+// Logic Move To Global Level To Run Both OMDB & Random Functions
+function movieLogic(){
     // Create API URL
     var queryUrl = "http://www.omdbapi.com/?t=" + input + "&y=&plot=short" + omdbKey;
+
     // Run Request
     request(queryUrl, function(error, response, data){
         // Log Paths
         if (!error && response.statusCode===200){
             // console.log(JSON.parse("All Data: " + data));
-            console.log("++++++++++++++++++++++++++++++++++++++++++++++");
+
+            console.log("\n");
             console.log("Movie Title: " + JSON.parse(data).Title);
+            console.log("______________________________________________");
             console.log("Release Year: " + JSON.parse(data).Year);
             console.log("IMDB Rating: " + JSON.parse(data).imdbRating);
             console.log("Rotten Tomatoes: " + JSON.parse(data).Ratings[1].Value);
             console.log("Produced In: " + JSON.parse(data).Country);
             console.log("Languages: " + JSON.parse(data).Language);
             console.log("Actors: " + JSON.parse(data).Actors);
-            console.log("Plot: " + JSON.parse(data).Plot);
-            console.log("++++++++++++++++++++++++++++++++++++++++++++++");   
+            console.log("\nPlot: " + JSON.parse(data).Plot);
+            console.log("______________________________________________\n");  
         } else {
             return console.log(error);
         }
     });
 }
 
+
+
 // Spotify Function
 function spotifyRun(){
     
-    // Check for user input
-    if(input===""){
-        input = "The Sign Ace of Base";
-        console.log("No Song Selected");
-    } 
+    inquirer.prompt([
+        {
+          name: 'pickSong',
+          message: 'Please Enter A Song Title: ',
+          type: 'input',
+          default: 'The Sign Ace of Base'
+        }
+    ]).then(function(answers) {
+        input = answers.pickSong;          
+        spotifyLogic();
+        appendLog();
+        setTimeout(start, 1000);
+        // console.log("Select Down Arrow To See LARDAC Commands");
+    });
+}
 
+// Logic For Both Spotify & Random Functions
+function spotifyLogic(){
     // Search for track using Spotify API
     spotifyKey.search({ type: 'track', query: input }, function(err, data) {
     // spotifyKey.search({ type: 'track', query: input }).then(function(err, data) {
@@ -108,15 +156,17 @@ function spotifyRun(){
             return console.log(err);
         }else{
             // console.log(data.tracks.items[0]); 
-            console.log("++++++++++++++++++++++++++++++++++++++++++++++");
-            console.log("Track: " + data.tracks.items[0].name);
+            console.log("\n");
+            console.log("Song: " + data.tracks.items[0].name);
+            console.log("______________________________________________");
             console.log("Artist: " + data.tracks.items[0].artists[0].name);
             console.log("Album: " + data.tracks.items[0].album.name);
             console.log("Preview Link: " + data.tracks.items[0].preview_url);
-            console.log("++++++++++++++++++++++++++++++++++++++++++++++");
+            console.log("______________________________________________\n");
         }
     });
 }
+
 
 // Twitter Function
 function twitterRun(){
@@ -125,15 +175,19 @@ function twitterRun(){
             return console.log(error);
         }else{ 
             // console.log(tweets);
-            console.log("++++++++++++++++++++++++++++++++++++++++++++++");
-            console.log("Your Last 20 Tweets");
-            console.log("++++++++++++++++++++++++++++++++++++++++++++++");
-            for (var i = 0; i < 20; i++){
+           
+            console.log("\n");
+            console.log("           Your Last 10 Tweets");
+            console.log("______________________________________________");
+            for (var i = 0; i < 10; i++){
                 // Created At & Tweet Path
                 console.log("Created On: "+ tweets[i].created_at);
                 console.log(tweets[i].text);
-                console.log("++++++++++++++++++++++++++++++++++++++++++++++");
+                console.log("______________________________________________");
             }
+
+            console.log("\n");
+            appendLog();
         }
     }); 
 }
@@ -146,38 +200,49 @@ function lardacRun(){
     // Fill Random Luck Array
     randomPick();
     randomPick();
-    randomPick();
-    randomPick();
 
     // Runs FS To Read The Text File
     fs.readFile("random.txt", "utf8", function(error, data){
         if(error){
             return console.log(error);
         }else{
+            
+            console.log("\n\n");
+            console.log("LARDAC's Thinks Your Should Check These Out!");
+            console.log("______________________________________________\n");
+            
             // Convert Random Text File To An Array 
             var newArray = data.slice(0).split("|");
                 // console.log(newArray);
 
-            for(var i = 0; i < luckArray.length; i++){
-                // Sets New Input & Command From Random Pick Of Array
-                // console.log("loop");
-                luckSpot = luckArray[i];
+            randomPicks();
+            // Uses Async Await To Prevent System From Proceeding Before API Filled
+            async function randomPicks(){   
+                for(var i = 0; i < luckArray.length; i++){
+                    // Sets New Input & Command From Random Pick Of Array
+                    // console.log("loop");
+                    luckSpot = luckArray[i];
 
-                command = newArray[luckSpot].split(",").slice(0,1);
-                    // console.log("Random Command: " + command);
-                
-                input = newArray[luckSpot].split(",").slice(-1);
-                    // console.log("Random Input: " + input); 
-                
-                // Selects The Right Function To Run Based On Pick
-                if(command=='"spotify-this-song"'){
-                    console.log("Song Picked");
-                    spotifyRun();
-                } else if(command=='"movie-this"') {
-                    console.log("Movie Picked")
-                    omdbRun();
-                } else {
-                    console.log("Something Went Wrong!")
+                    command = newArray[luckSpot].split(",").slice(0,1);
+                        // console.log("Random Command: " + command);
+                    
+                    input = newArray[luckSpot].split(",").slice(-1);
+                        // console.log("Random Input: " + input); 
+                    
+                    // Selects The Right Function To Run Based On Pick
+                    if(command=='"spotify-this-song"'){
+                        // console.log("Song Picked");
+                        await spotifyLogic();
+                    } else if(command=='"movie-this"') {
+                        // console.log("Movie Picked")
+                        await movieLogic();
+                    } else {
+                        console.log("Something Went Wrong!" + luckArray);
+                    }
+
+                    if(i === (luckArray.length -1)){
+                        setTimeout(start, 1500);   
+                    }
                 }
             }
         }
@@ -190,7 +255,7 @@ function appendLog(){
         if(error) {
             return console.log(error);
         } else {
-            console.log("Request Logged :)");
+            console.log("\nRequest Logged :)\n");
         }
     });
 }
@@ -207,7 +272,7 @@ function randomPick(){
     if (luckArray.indexOf(newLuck) > -1){
         match = true;
         while (match === true){
-            console.log("++++++++++++++++ running loop +++++++++++++++++");
+            // console.log("++++++++++++++++ running loop +++++++++++++++++");
             newLuck = Math.floor((Math.random() * 10) + 1);
             // Checks If In Luck Array - False If = -1
             if(luckArray.indexOf(newLuck) === -1){
@@ -222,7 +287,7 @@ function randomPick(){
 
             // Do Nothing If Random Picks Same - Start Loop Again 
             } else {
-                console.log("No Luck");
+                // console.log("No Luck");
             }
         }
     } else {
@@ -232,3 +297,4 @@ function randomPick(){
     }
 }
 
+start();
