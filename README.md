@@ -3,7 +3,7 @@ Before the rise of Gotham's HARDAC there was LARDAC (Language * Assisted * Recip
 
 This back-end application is built with JavaScript and Node.js NPM packages. It runs from your command line and uses inquirer as a proxy for the front end.  The application showcases the use of FS Read, FS Write, the "Request" NPM package, the OMDB API, the Spotify API, the Twitter API, and "dotenv" package to protect API keys.  It also includes a randomization function that randomly picks unique (i.e. non-duplicate) numbers using a recursive approach.
 
-**Video Demo** - https://youtu.be/CeeR1sIF74U
+**Video Demo** - https://youtu.be/SQHHRqTVohM
 
 
 # How To Run
