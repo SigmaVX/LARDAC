@@ -208,7 +208,7 @@ function lardacRun(){
         }else{
             
             console.log("\n\n");
-            console.log("LARDAC's Thinks Your Should Check These Out!");
+            console.log("LARDAC Thinks Your Should Check These Out!");
             console.log("______________________________________________\n");
             
             // Convert Random Text File To An Array 
